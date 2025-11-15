@@ -1,0 +1,12 @@
+# Ignore the virtual environment
+venv/
+
+# !! CRITICAL: Ignore the secret API key file !!
+.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore the sanction letter (so it's not in the repo)
+Sanction_Letter.txt
