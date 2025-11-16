@@ -86,7 +86,7 @@ if prompt := st.chat_input("Type your response here..."):
     with st.chat_message("assistant"):
         with st.spinner("🔄 EY Agents Working... (Sales -> Verification -> Underwriting)"):
             try:
-                response = requests.post("http://127.0.0.1:8000/chat", json=payload)
+                response = requests.post("http://backend:8000/chat", json=payload)
                 data = response.json()
                 bot_reply = data["response"]
                 has_file = data.get("has_file", False)

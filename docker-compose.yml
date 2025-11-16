@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # This is our Backend (FastAPI) service
+  backend:
+    build: ./backend        # Tells Docker to build using the 'backend' folder
+    env_file:
+      - ./backend/.env      # Loads your API key from the .env file
+    ports:
+      - "8000:8000"         # Maps your computer's port 8000 to the container's
+
+  # This is our Frontend (Streamlit) service
+  frontend:
+    build: ./frontend       # Tells Docker to build using the 'frontend' folder
+    ports:
+      - "8501:8501"         # Maps your computer's port 8501 to the container's
+    depends_on:
+      - backend             # Tells the frontend to wait until the backend is running
