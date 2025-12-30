@@ -1,4 +1,4 @@
-# EY GenAI Banker - Tata Capital Techathon
+# GenAI Banker - Tata Capital Techathon
 This is a full-stack, multi-agent AI solution built for the EY Techathon (TATA Capital BFSI Challenge).
 
 The project simulates an intelligent, persuasive sales agent that guides a customer from an initial chat to a final loan sanction, handling complex business logic and edge cases.
