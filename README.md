@@ -101,7 +101,7 @@ graph TB
 ```
 
 ### Component Breakdown
-
+<div align="center">
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | **Frontend** | Streamlit | User interface & interaction |
@@ -110,7 +110,7 @@ graph TB
 | **KYC Module** | Python + ML | Identity verification & compliance |
 | **Underwriting** | Rule Engine | Risk assessment & decision making |
 | **Database** | PostgreSQL/SQLite | Application & audit storage |
-
+</div>
 ---
 
 ## 🤖 Intelligent Agents
