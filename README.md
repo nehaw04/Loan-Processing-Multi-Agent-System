@@ -326,9 +326,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Project Maintainer:** Your Name
 
-- 📧 Email: nehar.xiaeroor@gmail.com
+- 📧 Email: [click here](nehar.xiaeroor@gmail.com)
 - 🐙 GitHub: [@nehaw04](https://github.com/nehaw04)
-- 💼 LinkedIn: [Neha}(https://linkedin.com/in/nehxr)
+- 💼 LinkedIn: [Neha](https://linkedin.com/in/nehxr)
 
 ---
 
