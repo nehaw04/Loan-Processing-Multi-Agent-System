@@ -262,22 +262,19 @@ streamlit run app.py       # Frontend
 ```
 ai-financial-underwriting/
 ├── 📂 backend/
-│   ├── main.py              # FastAPI application
-│   ├── agents/
-│   │   ├── sales_agent.py
-│   │   ├── kyc_agent.py
-│   │   └── underwriting_agent.py
-│   ├── models/              # Data models
-│   └── utils/               # Helper functions
+│   ├── Dockerfile           # Backend container configuration
+│   ├── api.py               # API endpoints and routes
+│   ├── main.py              # FastAPI application entry point
+│   ├── requirements.txt     # Backend dependencies
+│   └── tools.py             # Utility functions and helpers
 ├── 📂 frontend/
+│   ├── Dockerfile           # Frontend container configuration
 │   ├── app.py               # Streamlit application
-│   └── components/          # UI components
-├── 📂 docker/
-│   ├── Dockerfile.backend
-│   └── Dockerfile.frontend
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
+│   └── requirements.txt     # Frontend dependencies
+├── .gitignore               # Git ignore rules
+├── README.md                # Project documentation
+├── check_model.py           # Model verification script
+└── docker-compose.yml       # Multi-container orchestration
 ```
 
 ---
@@ -327,9 +324,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-**Project Maintainer:** Neha R
+**Project Maintainer:** Your Name
 
-- 📧 Email: nehar.xiaeroor@gmail.com
+- 📧 Email: your.email@example.com
 - 🐙 GitHub: [@yourusername](https://github.com/nehaw04)
 - 💼 LinkedIn: [Your Profile](https://linkedin.com/in/nehxr)
 
