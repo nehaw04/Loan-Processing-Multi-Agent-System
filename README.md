@@ -30,7 +30,7 @@ Transform traditional, slow banking underwriting into an **intelligent, automate
 ---
 
 ## ✨ Features
-
+<div align="center">
 <table>
 <tr>
 <td width="50%">
@@ -73,7 +73,7 @@ Transform traditional, slow banking underwriting into an **intelligent, automate
 </td>
 </tr>
 </table>
-
+</div>
 ---
 
 ## 🏗️ Architecture
