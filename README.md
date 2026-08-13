@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏦 Autonomous AI Financial Underwriting
+# 🏦 Loan Buddy
 
 ### *Revolutionizing Loan Processing with Multi-Agent Intelligence*
 
