@@ -285,41 +285,6 @@ ai-financial-underwriting/
 
 ---
 
-## ⚠️ Honest Limitations
-
-This is a working prototype, not a production system. Being upfront about what's *not* here:
-
-- **No database** — all data lives in in-memory Python dictionaries and resets on restart
-- **No authentication** — every endpoint is open to anyone who can reach it
-- **No encryption, audit logging, or regulatory compliance controls**
-- **No real document handling** — the "salary slip upload" is a checkbox, not a file; there's no OCR or ID verification
-- **Synchronous only** — one request runs the full agent chain before the next starts; not built for concurrent load
-- **Sanction letter is a `.txt` file**, not an actual PDF
-- **Two unused dependencies** (`onnxruntime`, `cffi`) sit in `backend/requirements.txt` but aren't imported anywhere
-
----
-
-## 🛣️ Roadmap
-
-**Built:**
-- [x] Master Orchestrator + five-agent pipeline
-- [x] Gemini-powered Router and Sales agents
-- [x] Rule-based underwriting engine (four explicit rules)
-- [x] Dockerized two-service deployment
-
-**Not yet built:**
-- [ ] Real database (PostgreSQL) replacing the mock dictionaries
-- [ ] Authentication and role-based access control
-- [ ] Async/queued agent calls (e.g. Celery + Redis) for concurrent users
-- [ ] Real PDF generation for the sanction letter
-- [ ] Genuine document upload with OCR-based income verification
-- [ ] Fraud-detection agent between KYC and Router
-- [ ] `/health` endpoint and structured logging
-- [ ] Multi-language support
-- [ ] Mobile application
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
