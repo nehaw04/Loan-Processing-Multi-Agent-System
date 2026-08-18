@@ -2,14 +2,15 @@
 
 # 🏦 Loan Buddy
 
-### *Revolutionizing Loan Processing with Multi-Agent Intelligence*
+### *A Multi-Agent AI Prototype for Simulated Loan Processing*
 
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Gemini](https://img.shields.io/badge/Google_Gemini-Flash-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev)
 
-[Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Agents](#-intelligent-agents) • [Demo](#-demo)
+[Overview](#-overview) • [Architecture](#%EF%B8%8F-architecture) • [Agents](#-the-five-agents) • [Quick Start](#-quick-start) • [Demo](#-demo-walkthrough) • [Limitations](#-honest-limitations)
 
 ---
 
@@ -17,167 +18,165 @@
 
 ## 🎯 Overview
 
-Transform traditional, slow banking underwriting into an **intelligent, automated workflow**. This multi-agent AI system handles the complete loan lifecycle—from initial customer engagement to final approval—using the power of LLMs combined with robust financial compliance logic.
+Loan Buddy is a **prototype** that simulates a bank's personal-loan workflow using a multi-agent design. Instead of one large LLM call trying to do everything, the work is split across five narrowly scoped agents — Verification, Routing, Sales, Underwriting, and Document Generation — coordinated by a single **Master Orchestrator**.
 
-### Why This Matters
+The core design bet: **language tasks stay with the LLM, financial decisions stay in plain deterministic code.** Google Gemini writes the sales pitch and classifies user intent. Everything that touches money — credit checks, approval thresholds — is ordinary Python with no model call involved.
 
-- ⚡ **Speed**: Process loans in minutes, not days
-- 🎯 **Accuracy**: Eliminate human error in calculations
-- 📊 **Compliance**: Built-in regulatory checks
-- 🤖 **Scalability**: Handle thousands of applications simultaneously
-- 💰 **Cost-Efficient**: Reduce operational overhead by 70%
+This is a demo/hackathon-style build (also shown as "EY Agentic Banker"), running against two hardcoded personas, not a production banking system.
+
+### What it actually demonstrates
+
+- 🧩 **Separation of concerns** — an orchestrator delegating to specialized agents instead of one monolithic prompt
+- 🎯 **Deliberate LLM boundaries** — persuasion and intent detection use Gemini; approval/rejection logic never does
+- 🏗️ **Containerized microservice split** — independent frontend and backend services via Docker Compose
+- 🔁 **A full simulated loan journey** — identity check → intent detection → sales pitch or underwriting → sanction letter
 
 ---
 
-## ✨ Features
+## ✨ Features (as actually built)
+
 <div align="center">
 <table>
 <tr>
 <td width="50%">
 
 ### 🗣️ **Conversational Sales**
-- Natural language loan consultation
-- Personalized product recommendations
-- Instant eligibility assessment
-- Multi-language support ready
+- LLM-generated persuasive pitch per user
+- Pulls real scheme data (rate, tenure) into the prompt
+- Adapts tone based on user hesitation
+- Two-persona demo (more require code changes)
 
 </td>
 <td width="50%">
 
-### 🔍 **Smart Verification**
-- Automated document analysis
-- Real-time identity verification
-- Credit score integration
-- Fraud detection capabilities
+### 🔍 **KYC Check**
+- Name lookup against a mock CRM dictionary
+- Fails fast if the name isn't recognized
+- Returns phone, address, and city from mock data
+- No document upload or OCR — this is a lookup, not verification
 
 </td>
 </tr>
 <tr>
 <td width="50%">
 
-### ⚖️ **Intelligent Underwriting**
-- DTI (Debt-to-Income) calculation
-- Risk scoring algorithms
-- Automated decision making
-- Detailed audit trails
+### ⚖️ **Rule-Based Underwriting**
+- Four explicit, hardcoded rules (see below)
+- No LLM involved — fully deterministic
+- EMI-to-income check for the "grey zone" between 1x–2x limit
+- Same input always produces the same output
 
 </td>
 <td width="50%">
 
-### 🎨 **Modern Interface**
-- Clean, intuitive dashboard
-- Real-time status updates
-- Document upload & preview
-- Export capabilities
+### 🎨 **Streamlit Interface**
+- Persona switcher (2 hardcoded users)
+- Chat-style interaction with typewriter reply
+- Checkbox to simulate salary-slip upload
+- Download link for the generated letter on approval
 
 </td>
 </tr>
 </table>
 </div>
+
 ---
 
 ## 🏗️ Architecture
 
-Our system uses a **microservices architecture** for maximum scalability and maintainability.
+Two containers, coordinated by Docker Compose:
 
 ```mermaid
 graph TB
-    A[👤 User Interface] -->|Streamlit| B[🎨 Frontend Container]
-    B -->|REST API| C[⚡ FastAPI Backend]
-    C -->|Orchestration| D{🎯 Intent Router}
-    D -->|Sales Inquiry| E[🗣️ LLM Sales Agent]
-    D -->|Verification| F[🔍 KYC Engine]
-    D -->|Final Decision| G[⚖️ Underwriting Engine]
-    E -->|Product Info| C
-    F -->|Verified Data| C
-    G -->|Approval/Rejection| C
-    C -->|Response| B
-    B -->|Display| A
-    
+    A[👤 User] -->|Streamlit UI| B[🎨 Frontend Container :8501]
+    B -->|POST /chat| C[⚡ FastAPI Backend :8000]
+    C --> M[🧭 Master Agent]
+    M --> V[🕵️ Verification Agent<br/>mock CRM lookup]
+    M --> R[🧠 Router Agent<br/>Gemini: CHAT or APPLY]
+    R -->|CHAT| S[💼 Sales Agent<br/>Gemini pitch]
+    R -->|APPLY| U[⚖️ Underwriting Agent<br/>plain Python rules]
+    U -->|APPROVED| G[📄 Sanction Letter Generator<br/>writes .txt file]
+    S --> C
+    U --> C
+    G --> C
+    C -->|JSON response| B
+    B -->|Display + download link| A
+
     style A fill:#e1f5ff
-    style E fill:#fff4e6
-    style F fill:#e8f5e9
-    style G fill:#fce4ec
+    style S fill:#fff4e6
+    style V fill:#e8f5e9
+    style U fill:#fce4ec
+    style G fill:#f3e5f5
 ```
 
 ### Component Breakdown
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **Frontend** | Streamlit | User interface & interaction |
-| **Backend API** | FastAPI | Request handling & orchestration |
-| **Sales Agent** | Gemini LLM | Customer engagement & consultation |
-| **KYC Module** | Python + ML | Identity verification & compliance |
-| **Underwriting** | Rule Engine | Risk assessment & decision making |
-| **Database** | PostgreSQL/SQLite | Application & audit storage |
+| **Frontend** | Streamlit | Chat UI, persona switcher, download button |
+| **Backend API** | FastAPI + Pydantic | Validates requests, calls the Master Agent |
+| **Sales & Router Agents** | Gemini (`gemini-flash-latest`) | Intent classification and persuasive pitch generation |
+| **Verification & Underwriting** | Plain Python | Deterministic lookups and rule checks — no LLM |
+| **Data storage** | In-memory Python dictionaries | No database engine; data resets on container restart |
+| **Containerization** | Docker + Docker Compose | Two services: `backend`, `frontend` |
 
 ---
 
-## 🤖 Intelligent Agents
+## 🤖 The Five Agents
 
-### 1️⃣ Sales Agent 🗣️
+### 1️⃣ Router Agent 🧭
 
-Your AI-powered loan consultant that understands customer needs.
+Classifies user intent so the rest of the pipeline knows which path to take.
 
 ```python
-# Example interaction
-"I need a loan for my small business"
-→ Agent analyzes intent
-→ Recommends suitable products
-→ Explains terms in simple language
-→ Collects initial information
+# Prompt asks Gemini for exactly one word
+"I'm not sure about this..." → CHAT
+"Yes, go ahead and approve me" → APPLY
 ```
 
-**Capabilities:**
-- Product recommendation
-- Eligibility pre-check
-- Interest rate calculation
-- Payment schedule generation
+Decision is read back with a simple string-contains check on the model's output.
 
 ---
 
-### 2️⃣ KYC Agent 🔍
+### 2️⃣ Sales Agent 💼
 
-Automated identity verification and compliance checker.
+Runs only on the CHAT path. Pure LLM, no decision authority.
 
-```python
-# Verification workflow
-Upload Documents
-→ OCR extraction
-→ Data validation
-→ Credit bureau check
-→ Fraud detection
-→ Compliance verification
-```
-
-**Validates:**
-- ✅ Government IDs (PAN, Aadhaar, Passport)
-- ✅ Address proofs
-- ✅ Income documents
-- ✅ Credit history
+**What it actually does:**
+- Builds a prompt with the user's name, message, pre-approved limit, and the specific schemes (rate + tenure) pulled from mock data
+- Asks Gemini to write a persuasive, VIP-toned pitch that ends with a direct question
+- Returns the generated text as-is — it doesn't calculate anything itself
 
 ---
 
-### 3️⃣ Underwriting Agent ⚖️
+### 3️⃣ Verification Agent 🕵️
 
-The final decision maker using sophisticated risk models.
+Deterministic, no LLM. Looks the user's name up in a two-entry dictionary (`MOCK_CRM`). If the name isn't found, the whole pipeline halts before any other agent runs.
+
+---
+
+### 4️⃣ Underwriting Agent ⚖️
+
+The decision-maker — and deliberately **not** an LLM.
 
 ```python
-# Decision logic
-Analyze Financial Data
-→ Calculate DTI ratio
-→ Assess credit score
-→ Evaluate collateral
-→ Risk scoring
-→ Generate decision + reasons
+# underwriting_logic() — four explicit rules
+1. credit_score < 700              → REJECTED
+2. amount <= pre_approved_limit    → APPROVED INSTANTLY
+3. amount > 2 × pre_approved_limit → REJECTED
+4. amount between 1x–2x limit:
+     no salary slip                → PENDING_DOCS
+     salary slip + EMI ≤ income/2  → APPROVED (manual underwriting)
+     salary slip + EMI > income/2  → REJECTED
 ```
 
-**Evaluates:**
-- 📊 Debt-to-Income ratio
-- 💳 Credit score & history
-- 💰 Income stability
-- 🏠 Collateral value
-- ⚠️ Risk factors
+Where `estimated_emi = (requested_amount × 1.10) / 60`. This is a simplified EMI-to-income check, not a formal DTI ratio calculation.
+
+---
+
+### 5️⃣ Sanction Letter Generator 📄
+
+I/O only, no logic. On approval, writes a formatted `Sanction_Letter.txt` with the applicant's name, product, and amount, and makes it available for download.
 
 ---
 
@@ -185,74 +184,81 @@ Analyze Financial Data
 
 ### Prerequisites
 
-- Python 3.10 or higher
 - Docker & Docker Compose
-- API keys for Gemini (or your chosen LLM)
+- A Google Gemini API key ([ai.google.dev](https://ai.google.dev))
 
-### Installation
+### Run with Docker Compose
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ai-financial-underwriting.git
+git clone https://github.com/nehaw04/ai-financial-underwriting.git
 cd ai-financial-underwriting
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys
+# Add your Gemini key
+echo "GOOGLE_API_KEY=your_key_here" > backend/.env
 
-# Start with Docker Compose
-docker-compose up -d
+# Start both services
+docker-compose up --build
+```
 
-# Or run locally
+### Run locally without Docker
+
+```bash
+# Backend
+cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload  # Backend
-streamlit run app.py       # Frontend
+echo "GOOGLE_API_KEY=your_key_here" > .env
+uvicorn api:app --reload --port 8000
+
+# Frontend (in a separate terminal)
+cd frontend
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
 ### Access the Application
 
-- **Frontend Dashboard**: http://localhost:8501
-- **API Documentation**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+- **Frontend Chat UI**: http://localhost:8501
+- **API Docs (Swagger)**: http://localhost:8000/docs
+
+> There is currently no `/health` endpoint — it's on the roadmap below.
 
 ---
 
-## 📊 Demo
+## 📊 Demo Walkthrough
 
-### Application Flow
+A real trace through the actual code, using the "Alex Johnson" persona (credit score 720, $50,000 pre-approved limit):
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    1. Customer Interaction                   │
-│  "I want a ₹5 lakh personal loan for home renovation"       │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  1. User: "I want a $80,000 loan"                            │
+│     → Router Agent classifies this as APPLY                  │
+└──────────────────────────────────────────────────────────────┘
                               ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    2. Sales Agent Response                   │
-│  • Recommends suitable products                             │
-│  • Explains interest rates                                  │
-│  • Calculates EMI: ₹10,430/month @ 10.5% for 5 years       │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  2. Underwriting Agent runs the four rules:                  │
+│     • Credit score 720 ≥ 700               → passes          │
+│     • $80,000 > $50,000 limit              → not instant     │
+│     • $80,000 ≤ 2 × $50,000 ($100,000)     → grey zone       │
+│     • salary_slip_uploaded = False         → PENDING_DOCS    │
+└──────────────────────────────────────────────────────────────┘
                               ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  3. Document Collection                      │
-│  Upload: ID Proof, Income Proof, Address Proof              │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  3. User checks the "Simulate Salary Slip Upload" box         │
+│     and says "Proceed"                                       │
+└──────────────────────────────────────────────────────────────┘
                               ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    4. KYC Verification                       │
-│  ✓ Identity verified                                        │
-│  ✓ Credit score: 750/900                                    │
-│  ✓ Income verified: ₹60,000/month                          │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  4. Underwriting re-runs:                                    │
+│     estimated_emi = (80,000 × 1.10) / 60 ≈ $1,467            │
+│     income / 2 = $37,500                                     │
+│     $1,467 ≤ $37,500 → APPROVED via manual underwriting      │
+└──────────────────────────────────────────────────────────────┘
                               ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  5. Underwriting Decision                    │
-│  ✅ APPROVED                                                │
-│  DTI: 17.4% (Excellent)                                     │
-│  Risk Score: Low                                            │
-│  Loan Amount: ₹5,00,000                                     │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  5. Sanction_Letter.txt is generated and offered as a         │
+│     download from the Streamlit UI                            │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -263,44 +269,54 @@ streamlit run app.py       # Frontend
 ai-financial-underwriting/
 ├── 📂 backend/
 │   ├── Dockerfile           # Backend container configuration
-│   ├── api.py               # API endpoints and routes
-│   ├── main.py              # FastAPI application entry point
-│   ├── requirements.txt     # Backend dependencies
-│   └── tools.py             # Utility functions and helpers
+│   ├── api.py                # FastAPI routes: /chat, /download-sanction
+│   ├── main.py                # Master Agent + all five agent functions
+│   ├── requirements.txt       # Backend dependencies
+│   └── tools.py                # Mock CRM/Bureau/Offers + underwriting rules
 ├── 📂 frontend/
 │   ├── Dockerfile           # Frontend container configuration
-│   ├── app.py               # Streamlit application
-│   └── requirements.txt     # Frontend dependencies
-├── .gitignore               # Git ignore rules
-├── README.md                # Project documentation
-├── check_model.py           # Model verification script
-└── docker-compose.yml       # Multi-container orchestration
+│   ├── app.py                # Streamlit chat UI
+│   └── requirements.txt       # Frontend dependencies
+├── .gitignore
+├── README.md
+├── check_model.py           # Lists Gemini models available to your API key
+└── docker-compose.yml       # Two-service orchestration
 ```
 
 ---
 
-## 🔒 Security & Compliance
+## ⚠️ Honest Limitations
 
-- 🔐 **Encryption**: All sensitive data encrypted at rest and in transit
-- 📝 **Audit Logs**: Complete trail of all decisions and actions
-- ✅ **Compliance**: Built to meet financial regulations
-- 🛡️ **Data Privacy**: GDPR and local data protection compliance
-- 🔑 **Access Control**: Role-based authentication and authorization
+This is a working prototype, not a production system. Being upfront about what's *not* here:
+
+- **No database** — all data lives in in-memory Python dictionaries and resets on restart
+- **No authentication** — every endpoint is open to anyone who can reach it
+- **No encryption, audit logging, or regulatory compliance controls**
+- **No real document handling** — the "salary slip upload" is a checkbox, not a file; there's no OCR or ID verification
+- **Synchronous only** — one request runs the full agent chain before the next starts; not built for concurrent load
+- **Sanction letter is a `.txt` file**, not an actual PDF
+- **Two unused dependencies** (`onnxruntime`, `cffi`) sit in `backend/requirements.txt` but aren't imported anywhere
 
 ---
 
 ## 🛣️ Roadmap
 
-- [x] Core multi-agent system
-- [x] Sales agent with LLM integration
-- [x] KYC verification module
-- [x] Basic underwriting engine
-- [ ] Advanced fraud detection
-- [ ] Real-time credit bureau integration
-- [ ] Mobile application
+**Built:**
+- [x] Master Orchestrator + five-agent pipeline
+- [x] Gemini-powered Router and Sales agents
+- [x] Rule-based underwriting engine (four explicit rules)
+- [x] Dockerized two-service deployment
+
+**Not yet built:**
+- [ ] Real database (PostgreSQL) replacing the mock dictionaries
+- [ ] Authentication and role-based access control
+- [ ] Async/queued agent calls (e.g. Celery + Redis) for concurrent users
+- [ ] Real PDF generation for the sanction letter
+- [ ] Genuine document upload with OCR-based income verification
+- [ ] Fraud-detection agent between KYC and Router
+- [ ] `/health` endpoint and structured logging
 - [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-- [ ] Integration with core banking systems
+- [ ] Mobile application
 
 ---
 
@@ -324,9 +340,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-**Project Maintainer:** Your Name
+**Project Maintainer:** Neha
 
-- 📧 Email: [click here](nehar.xiaeroor@gmail.com)
+- 📧 Email: [click here](mailto:nehar.xiaeroor@gmail.com)
 - 🐙 GitHub: [@nehaw04](https://github.com/nehaw04)
 - 💼 LinkedIn: [Neha](https://linkedin.com/in/nehxr)
 
@@ -338,6 +354,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ and 🤖 AI**
 
-[Report Bug](https://github.com/nehaw04/ai-financial-underwriting/issues) • [Request Feature](https://github.com/nehaw04/ai-financial-underwriting/issues) • [Documentation](https://github.com/nehaw04/ai-financial-underwriting/wiki)
+[Report Bug](https://github.com/nehaw04/ai-financial-underwriting/issues) • [Request Feature](https://github.com/nehaw04/ai-financial-underwriting/issues)
 
 </div>
